@@ -26,7 +26,7 @@ as_arg.function <- function(x) {
 }
 
 as_arg.character <- function(x) {
-  as.arg(
+  as_arg(
     function(obj) { any(x %in% class(obj)) }
   )
 }
