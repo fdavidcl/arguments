@@ -11,7 +11,9 @@ def <- function(.f, ...) {
   }
 
   oldf <- enexpr(.f)
-  arg_checks <- list(...)
+  arg_checks <- structure(list(...), class = "arg_description")
+
+  # TODO: Check arg checks
 
   f_args <- vector("list", length(arg_checks))
   names(f_args) <- names(arg_checks)
@@ -36,10 +38,6 @@ def <- function(.f, ...) {
     } else {
       invisible(result$value)
     }
-  }
-
-  describe_f <- function() {
-    structure(arg_checks, class = "arg_description")
   }
 
   formals(checked_f) <- f_args

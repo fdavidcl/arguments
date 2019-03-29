@@ -10,4 +10,6 @@ resolve_defaults <- function(formal, actual) {
   for (param in which(!set_formals)) {
     result[[names(formal)[param]]] <- eval(formal[[param]])
   }
+
+  result
 }
