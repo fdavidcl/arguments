@@ -1,68 +1,131 @@
-# arg <- function(..., .default, .required = missing(.default)) {
-#   function()
-#     structure(list(
-#       ...
-#     ), class = "arg")
-# }
+argument <- function(
+  is_a = NULL,
+  is_in = NULL,
+  verifies = NULL,
+  defaults_to = NULL,
+  is_required = NULL
+) {
+  if (!is.null(is_a)) stopifnot(is(is_a, "character"))
+  if (!is.null(verifies)) stopifnot(is(verifies, "function") || is(verifies, "rlang_lambda_function"))
 
-#' @export
-as_arg <- function(x) UseMethod("as_arg", x)
-
-#' @export
-as_arg.arg <- function(x) x
-
-#' @export
-as_arg.formula <- function(x) {
-  # TODO: check if formula is predicate, or at least unary
-  structure(
-    rlang::as_function(x),
-    description = paste0("Verifies: ", as.character(enexpr(x))[2]),
-    class = "arg"
-  )
+  structure(list(list(
+    is_a = is_a,
+    is_in = is_in,
+    verifies = verifies,
+    defaults_to = defaults_to,
+    is_required = is_required
+  )), class = c("argument_list", "argument"))
 }
 
-#' @import rlang
+argument_class <- function(is_a) {
+  r <- argument(is_a = is_a)
+  attr(r[[1]], "class") <-  c("argument_class", class(r[[1]]))
+  r
+}
+
+argument_set <- function(is_in) {
+  r <- argument(is_in = is_in)
+  attr(r[[1]], "class") <-  c("argument_set", class(r[[1]]))
+  r
+}
+
+argument_condition <- function(verifies) {
+  r <- argument(verifies = verifies)
+  attr(r[[1]], "class") <-  c("argument_condition", class(r[[1]]))
+  r
+}
+
+argument_default <- function(defaults_to) {
+  r <- argument(defaults_to = defaults_to)
+  attr(r[[1]], "class") <-  c("argument_default", class(r[[1]]))
+  r
+}
+
 #' @export
-as_arg.function <- function(x) {
+required <- rlang::sym("required")
+argument_required <- function() {
+  r <- argument(is_required = TRUE)
+  attr(r[[1]], "class") <-  c("argument_required", class(r[[1]]))
+  r
+}
+
+`%and%` <- function(a1, a2) {
+  p1 <- as_argument(a1)
+  p2 <- as_argument(a2)
+
+  c(p1, p2)
+}
+
+#' @export
+c.argument_list <- function(p1, p2) {
+  stopifnot(is(p1, "argument_list"))
+  # if (is(p2, "argument") && !is(p2, "argument_list")) {
+  #   p2 <- structure(list(p2), class = c("argument_list", "argument"))
+  # }
+  stopifnot(is(p2, "argument_list"))
+
+  class(p1) <- "list"
+  class(p2) <- "list"
+
+  structure(c(p1, p2), class = c("argument_list", "argument"))
+}
+
+func_to_string <- function(x) {
   bd <- body(x)
   if (is.null(bd)) {
     fn <- enexpr(x)
     text <- as.character(substitute(x))
   } else {
+    # TODO: Improve this a lot
     text <- as.character(enexpr(bd))
-    text <- text[length(text)]
+    text <- paste0(text[-1], collapse = " ")
   }
 
-  structure(
-    # Using only 'x' causes some problems with primitive functions
-    function(.) x(.),
-    description = paste0("Verifies: ", text),
-    class = c("arg", "function")
-  )
+  text
 }
 
 #' @export
-as_arg.character <- function(x) {
-  structure(
-    function(obj) { any(x %in% class(obj)) },
-    description = paste0("Is", if (length(x) == 1) "" else " one of", ": ", paste0(x, collapse = ", ")),
-    class = "arg"
-  )
-}
 
-#' @import rlang
 #' @export
-as_arg.call <- function(x) {
-  x <- enquo(x)
-  structure(
-    function(.) {
-      eval(as.call(c(list(sym(call_name(x)), .), call_args(x))))
-    },
-    description = as.character(x),
-    class = "arg"
-  )
+as_argument <- function(x) UseMethod("as_argument", x)
+
+#' @export
+as_argument.character <- function(x) {
+  argument_class(x)
 }
 
-is_numeric <- as_arg("numeric")
+#' @export
+as_argument.formula <- function(x) {
+  # TODO: check if formula is predicate, or at least unary
+  argument_condition(rlang::as_function(x))
+}
 
-is_character <- as_arg("character")
+#' @export
+as_argument.function <- function(x) {
+  # Using only 'x' may cause some problems with primitive functions
+  argument_condition(function(.) x(.))
+}
+
+#' @export
+as_argument.list <- function(x) {
+  argument_set(x)
+}
+
+as_argument.name <- function(x) {
+  if (identical(x, required)) {
+    argument_required()
+  } else {
+    stop("Unknown symbol")
+  }
+}
+
+#' @export
+as_argument.argument <- function (x) x
+
+defaults_to <- function(value) {
+  argument_default(value)
+}
+
+`%=%` <- function(alist, value) {
+  alist %and% defaults_to(value)
+}

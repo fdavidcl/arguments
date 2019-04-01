@@ -5,9 +5,9 @@ check_args <- function(named_args, actual_args) {
   errors <- list()
 
   for (n in names(named_args)) {
-    result <- named_args[n](actual_args[n])
+    result <- as_predicate(named_args[[n]])(actual_args[[n]])
     if (!result) {
-      errors[[length(errors) + 1]] <- n
+      errors[[length(errors) + 1]] <- paste0("  ", n, " ->\n", named_args[[n]])
     }
   }
 

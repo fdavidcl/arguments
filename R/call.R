@@ -1,6 +1,6 @@
 
 resolve_defaults <- function(formal, actual) {
-  parent <- parent.frame()
+  # parent <- parent.frame()
 
   set_formals <- names(formal) %in% names(actual)
   # extra_params <- !(names(actual) %in% names(formal))
