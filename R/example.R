@@ -1,10 +1,4 @@
-#' Example function
-#'
-#' @param number A number
-#' @param string A string
-#' @return dunno
-#'
-#' @export
+
 # example_argcheck <- def(number = is_numeric, string = is_character, {
 #   if (exists("myargs")) {
 #     stop("Enviroment is leaking or block was executed prematurely!!!")

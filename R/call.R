@@ -1,15 +1,44 @@
+#
+# resolve_defaults <- function(formal, actual, envir = parent.frame()) {
+#   set_formals <- names(formal) %in% names(actual)
+#
+#   result <- actual
+#
+#   for (param in which(!set_formals)) {
+#     if (!is.null(formal[[param]]$defaults_to)) {
+#       cat("Setting ", names(formal)[param], "to", formal[[param]]$defaults_to)
+#       eval(call("<-", names(formal)[param], formal[[param]]$defaults_to), envir, envir)
+#     }
+#   }
+# }
 
-resolve_defaults <- function(formal, actual) {
-  # parent <- parent.frame()
+check_list <- function(x, value) {
+  ps <- as_predicate(x)
+  errs <- list()
 
-  set_formals <- names(formal) %in% names(actual)
-  # extra_params <- !(names(actual) %in% names(formal))
+  for (i in seq_along(ps)) {
+    a <- x[[i]]
+    p <- ps[[i]]
 
-  result <- actual
+    # cat("Checking", as.character(a), " with ", as.character(value))
 
-  for (param in which(!set_formals)) {
-    result[[names(formal)[param]]] <- eval(formal[[param]])
+    if (!p(value)) {
+      errs[[length(errs) + 1]] <- as.character(a)
+    }
   }
 
-  result
+  errs
+}
+
+check_args <- function(named_args, actual_args) {
+  errors <- list()
+
+  for (n in names(named_args)) {
+    result <- check_list(named_args[[n]], actual_args[[n]])
+    if (length(result) > 0) {
+      errors[[length(errors) + 1]] <- paste0("  ", n, " ->", paste0(result, collapse = " & "))
+    }
+  }
+
+  errors
 }

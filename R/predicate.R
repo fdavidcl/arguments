@@ -5,13 +5,22 @@
 #     ), class = "arg")
 # }
 
-
+#' Convert an argument check onto a predicate
+#'
+#' @param x Generally some argument type
+#' @return A predicate (unary function which returns a logical value)
+#'
+#' @examples
+#'
+#' a <- as_argument("numeric")[[1]]
+#' as_predicate(a)(10) # => TRUE
+#' as_predicate(a)('10') # => FALSE
+#'
 #' @export
 as_predicate <- function(x) UseMethod("as_predicate", x)
 
 #' @export
 as_predicate.predicate <- function(x) x
-
 
 #' @export
 as_predicate.argument_class <- function(x) function(a) {
@@ -24,19 +33,19 @@ as_predicate.argument_set <- function(x) function(a) {
 }
 
 #' @export
-as_predicate.argument_condition <- function(x) function(a) {
+as_predicate.argument_condition <- function(x) function(a, ...) {
   x$verifies(a)
 }
 
 #' @export
-as_predicate.argument_list <- function(x) function(a) {
-  for (check in x) {
-    p <- as_predicate(check)
-    if (!p(a)) return(FALSE)
-  }
-
-  return(TRUE)
+as_predicate.argument_list <- function(x) {
+  lapply(x, as_predicate)
 }
+
+#' @export
+as_predicate.argument_default <- function(x) function(a) TRUE
+
+# as_predicate.argument_required <- function(x) function(a) !missing(a)
 
 #' #' @export
 #' as_predicate.formula <- function(x) {

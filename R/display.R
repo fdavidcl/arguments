@@ -1,32 +1,37 @@
+print.argument <- function(x, ...) {
+  cat(as.character(x))
+}
+
 print.argument_list <- function(x, ...) {
   cat(as.character(x))
 }
 
+INDENT <- "  "
+NEWLINE <- "\n"
+mycat <- function(...) {
+  paste0(INDENT, paste(...), NEWLINE)
+}
+
+as.character.argument_class <- function(x) {
+  mycat("Is a:", paste0(x$is_a, collapse = " or "))
+}
+
+as.character.argument_set <- function(x) {
+  mycat("Is in:", paste0(x$is_in, collapse = ", "))
+}
+
+as.character.argument_condition <- function(x) {
+  mycat("Verifies:", func_to_string(x$verifies))
+}
+
+# as.character.argument_required <- function(x) {
+#   mycat("Is required")
+# }
+
+as.character.argument_default <- function(x) {
+  mycat("Defaults to:", as.character(x$defaults_to))
+}
+
 as.character.argument_list <- function(x) {
-  indent <- "  "
-  newline <- "\n"
-  output <- ""
-  mycat <- function(...) {
-    output <<- paste0(output, indent, paste(...), newline)
-  }
-
-  for (check in x) {
-    if (!is.null(check$is_a)) {
-      mycat("Is a:", paste0(check$is_a, collapse = " or "))
-    }
-    if (!is.null(check$is_in)) {
-      mycat("Is in:", paste0(check$is_in, collapse = ", "))
-    }
-    if (!is.null(check$verifies)) {
-      mycat("Verifies:", func_to_string(check$verifies))
-    }
-    if (!is.null(check$defaults_to)) {
-      mycat("Defaults to:", as.character(check$defaults_to))
-    }
-    if (!is.null(check$is_required)) {
-      mycat("Is required")
-    }
-  }
-
-  output
+  do.call(paste0, x)
 }
