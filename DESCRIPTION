@@ -1,8 +1,9 @@
 Package: arguments
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Domain-Specific Language for Automatic Argument Checking and Descriptions
 Version: 0.1.0
-Authors@R: c(person("David", "Charte", email = "fdavidcl@protonmail.com", role = c("aut", "cre")))
+Authors@R: c(person("David", "Charte", email = "fdavidcl@protonmail.com", role = c("aut", "cre")),
+    person("Universidad de Granada", role = "fnd"))
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: GPL (>= 3) | file LICENSE

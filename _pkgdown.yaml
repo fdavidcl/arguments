@@ -1,0 +1,9 @@
+template:
+  params:
+    bootswatch: lumen
+
+authors:
+  David Charte:
+    href: https://david.quotient.space
+  Universidad de Granada:
+    href: https://www.ugr.es
