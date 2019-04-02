@@ -48,7 +48,7 @@ def <- function(.f, ...) {
   }
 
   oldf <- enexpr(.f)
-  arg_checks <- structure(lapply(list(...), as_argument), class = "arg_description")
+  arg_checks <- structure(lapply(list(...), as_argument), class = "def_function_description")
 
   # TODO: Check arg checks
 

@@ -88,20 +88,6 @@ c.argument_list <- function(...) {
   })
 }
 
-func_to_string <- function(x) {
-  bd <- body(x)
-  if (is.null(bd)) {
-    fn <- enexpr(x)
-    text <- as.character(substitute(x))
-  } else {
-    # TODO: Improve this a lot
-    text <- as.character(enexpr(bd))
-    text <- paste0(text[-1], collapse = " ")
-  }
-
-  text
-}
-
 #' Coercion to an argument type
 #'
 #' @param x value to be coerced
@@ -130,7 +116,8 @@ as_argument.formula <- function(x) {
 #' @export
 as_argument.function <- function(x) {
   # Using only 'x' may cause some problems with primitive functions
-  argument_condition(function(.) x(.))
+  # argument_condition(function(.) x(.))
+  argument_condition(x)
 }
 
 #' @export
